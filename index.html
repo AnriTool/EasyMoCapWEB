@@ -11,9 +11,13 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. -->
-<link href="index.css" rel="stylesheet">
-<script type="module" src="index.js"></script>
-</script>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>EasyMoCapWEB</title>
+  <link href="index.css" rel="stylesheet">
+  <script type="module" src="index.js"></script>
+  </script>
+</head>
 
 <body>
   <section id="demos" class="invisible">
@@ -26,7 +30,7 @@ limitations under the License. -->
       </button>
       <div style="position: relative;">
         <video id="webcam" style="width: 1280px; height: 720px; position: abso" autoplay playsinline></video>
-        <canvas class="output_canvas" id="output_canvas" width="1280" height="720" style="position: absolute; left: 0px; top: 0px;"></canvas>
+        <canvas class="output_canvas" id="output_canvas" style="position: absolute; left: 0px; top: 0px;"></canvas>
       </div>
       <div class="twobat">
         <button id="downloadButton" class="mdc-button1 mdc-button--raised"">
