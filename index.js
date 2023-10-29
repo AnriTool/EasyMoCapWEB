@@ -94,6 +94,7 @@ async function handleClick(event) {
 // Demo 2: Continuously grab image from webcam stream and detect it.
 ********************************************************************/
 const video = document.getElementById("webcam");
+let setting
 const canvasElement = document.getElementById("output_canvas");
 const canvasCtx = canvasElement.getContext("2d");
 const drawingUtils = new DrawingUtils(canvasCtx);
@@ -131,16 +132,20 @@ function enableCam(event) {
     // Activate the webcam stream.
     navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
         video.srcObject = stream;
+        setting = stream.getVideoTracks()[0].getSettings()
+        console.log(setting)
         video.addEventListener("loadeddata", predictWebcam);
     });
 }
 let lastVideoTime = -1;
+
 async function predictWebcam() {
-    canvasElement.style.height = videoHeight;
-    video.style.height = videoHeight;
-    canvasElement.style.width = videoWidth;
-    video.style.width = videoWidth;
+    canvasElement.style.height = setting.height/1.5;
+    video.style.height = setting.height/1.5;
+    canvasElement.style.width = setting.width/1.5;
+    video.style.width = setting.width/1.5;
     // Now let's start detecting the stream.
+    
     if (runningMode === "IMAGE") {
         runningMode = "VIDEO";
         await poseLandmarker.setOptions({ runningMode: "VIDEO" });
