@@ -15,7 +15,14 @@ const demosSection = document.getElementById("demos");
 let poseLandmarker = undefined;
 let runningMode = "IMAGE";
 let enableWebcamButton;
+let dowloadFramesButton;
+let recButton;
 let webcamRunning = false;
+let frames = []
+let startRec = false;
+let curFrame = 0
+
+
 const videoHeight = "720px";
 const videoWidth = "1280px";
 // Before we can use PoseLandmarker class we must wait for it to finish
@@ -33,63 +40,14 @@ const createPoseLandmarker = async () => {
     });
     demosSection.classList.remove("invisible");
 };
+
+dowloadFramesButton = document.getElementById("downloadButton");
+dowloadFramesButton.addEventListener("click", downloadAsFile);
+
+recButton = document.getElementById("startButton");
+recButton.addEventListener("click", startRecord);
+
 createPoseLandmarker();
-/********************************************************************
-// Demo 1: Grab a bunch of images from the page and detection them
-// upon click.
-********************************************************************/
-// In this demo, we have put all our clickable images in divs with the
-// CSS class 'detectionOnClick'. Lets get all the elements that have
-// this class.
-const imageContainers = document.getElementsByClassName("detectOnClick");
-// Now let's go through all of these and add a click event listener.
-for (let i = 0; i < imageContainers.length; i++) {
-    // Add event listener to the child element whichis the img element.
-    imageContainers[i].children[0].addEventListener("click", handleClick);
-}
-// When an image is clicked, let's detect it and display results!
-async function handleClick(event) {
-    if (!poseLandmarker) {
-        console.log("Wait for poseLandmarker to load before clicking!");
-        return;
-    }
-    if (runningMode === "VIDEO") {
-        runningMode = "IMAGE";
-        await poseLandmarker.setOptions({ runningMode: "IMAGE" });
-    }
-    // Remove all landmarks drawed before
-    const allCanvas = event.target.parentNode.getElementsByClassName("canvas");
-    for (var i = allCanvas.length - 1; i >= 0; i--) {
-        const n = allCanvas[i];
-        n.parentNode.removeChild(n);
-    }
-    // We can call poseLandmarker.detect as many times as we like with
-    // different image data each time. The result is returned in a callback.
-    poseLandmarker.detect(event.target, (result) => {
-        const canvas = document.createElement("canvas");
-        canvas.setAttribute("class", "canvas");
-        canvas.setAttribute("width", event.target.naturalWidth + "px");
-        canvas.setAttribute("height", event.target.naturalHeight + "px");
-        canvas.style =
-            "left: 0px;" +
-                "top: 0px;" +
-                "width: " +
-                event.target.width +
-                "px;" +
-                "height: " +
-                event.target.height +
-                "px;";
-        event.target.parentNode.appendChild(canvas);
-        const canvasCtx = canvas.getContext("2d");
-        const drawingUtils = new DrawingUtils(canvasCtx);
-        for (const landmark of result.landmarks) {
-            drawingUtils.drawLandmarks(landmark, {
-                radius: (data) => DrawingUtils.lerp(data.from.z, -0.15, 0.1, 5, 1)
-            });
-            drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
-        }
-    });
-}
 /********************************************************************
 // Demo 2: Continuously grab image from webcam stream and detect it.
 ********************************************************************/
@@ -140,10 +98,10 @@ function enableCam(event) {
 let lastVideoTime = -1;
 
 async function predictWebcam() {
-    canvasElement.style.height = setting.height/1.5;
-    video.style.height = setting.height/1.5;
-    canvasElement.style.width = setting.width/1.5;
-    video.style.width = setting.width/1.5;
+    canvasElement.style.height = setting.height/1.1;
+    video.style.height = setting.height/1.1;
+    canvasElement.style.width = setting.width/1.1;
+    video.style.width = setting.width/1.1;
     // Now let's start detecting the stream.
     
     if (runningMode === "IMAGE") {
@@ -157,6 +115,11 @@ async function predictWebcam() {
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
             for (const landmark of result.landmarks) {
+                curFrame = curFrame + 1
+                if(curFrame > 15 && startRec){
+                  curFrame = 0
+                  frames.push(landmark)
+                }
                 drawingUtils.drawLandmarks(landmark, {
                     radius: (data) => DrawingUtils.lerp(data.from.z, -0.15, 0.1, 5, 1)
                 });
@@ -169,4 +132,28 @@ async function predictWebcam() {
     if (webcamRunning === true) {
         window.requestAnimationFrame(predictWebcam);
     }
+}
+
+function downloadAsFile() {
+  let data = JSON.stringify(frames)
+  let a = document.createElement("a");
+  let file = new Blob([data], {type: 'application/json'});
+  a.href = URL.createObjectURL(file);
+  a.download = "points.json";
+  a.click();
+}
+
+function startRecord() {
+  if(startRec === false){
+    recButton.innerText = "STOP RECORD";
+    startRec = true
+    document.body.style.background = 'red';
+    frames = []
+  }
+  else {
+    recButton.innerText = "START RECORD";
+    startRec = false
+    document.body.style.background = 'white';
+    
+  }
 }

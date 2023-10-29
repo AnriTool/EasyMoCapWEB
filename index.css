@@ -68,9 +68,10 @@ footer {
 .detectOnClick {
   position: relative;
   float: left;
-  width: 48%;
   margin: 2% 1%;
   cursor: pointer;
+  left: 50%;
+  transform: translate(-50%, 0);
 }
 
 .videoView p,
@@ -110,4 +111,25 @@ footer {
 
 .detectOnClick img {
   width: 100%;
+}
+
+.mdc-button {
+  position: relative;
+  left: 50%;
+  transform: translate(-50%, 0);
+  margin-bottom: 20px;
+  margin-top: 20px;
+  height: 90px;
+}
+
+
+.mdc-button1 {
+  margin: 20px;
+  height: 90px;
+}
+
+.twobat {
+  display: flex;
+  justify-content: center;
+  margin: 20px;
 }
